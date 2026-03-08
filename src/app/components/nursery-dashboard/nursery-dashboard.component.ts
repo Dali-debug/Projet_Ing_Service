@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { NurseryService } from '../../services/nursery.service';
 import { EnrollmentService } from '../../services/enrollment.service';
@@ -9,7 +9,7 @@ import { PaymentService } from '../../services/payment.service';
 @Component({
   selector: 'app-nursery-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './nursery-dashboard.component.html',
   styleUrl: './nursery-dashboard.component.scss'
 })

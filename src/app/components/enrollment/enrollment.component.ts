@@ -38,7 +38,7 @@ export class EnrollmentComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router,
+    public router: Router,
     private authService: AuthService,
     private nurseryService: NurseryService,
     private enrollmentService: EnrollmentService

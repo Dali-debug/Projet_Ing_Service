@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ParentService } from '../../services/parent.service';
 import { ChildService } from '../../services/child.service';
@@ -10,7 +10,7 @@ import { NotificationService } from '../../services/notification.service';
 @Component({
   selector: 'app-parent-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './parent-dashboard.component.html',
   styleUrl: './parent-dashboard.component.scss'
 })
