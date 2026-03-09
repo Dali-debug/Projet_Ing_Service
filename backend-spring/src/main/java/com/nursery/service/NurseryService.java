@@ -4,11 +4,15 @@ import com.nursery.model.*;
 import com.nursery.repository.*;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.logging.Logger;
 
 @Service
 public class NurseryService {
+
+    private static final Logger log = Logger.getLogger(NurseryService.class.getName());
 
     private final NurseryRepository nurseryRepository;
     private final ReviewRepository reviewRepository;
@@ -333,7 +337,14 @@ public class NurseryService {
         double totalRevenue = payments.stream()
                 .filter(p -> "paid".equals(p.getPaymentStatus()))
                 .mapToDouble(p -> p.getAmount() != null ? p.getAmount() : 0.0).sum();
-        double monthlyRevenue = totalRevenue;
+        // Monthly revenue: payments paid in the current calendar month
+        int currentMonth = LocalDate.now().getMonthValue();
+        int currentYear = LocalDate.now().getYear();
+        double monthlyRevenue = payments.stream()
+                .filter(p -> "paid".equals(p.getPaymentStatus())
+                        && p.getPaymentMonth() != null && p.getPaymentMonth() == currentMonth
+                        && p.getPaymentYear() != null && p.getPaymentYear() == currentYear)
+                .mapToDouble(p -> p.getAmount() != null ? p.getAmount() : 0.0).sum();
 
         List<Review> reviews = reviewRepository.findByNurseryId(nurseryId);
         double avgRating = reviews.stream().mapToInt(Review::getRating).average().orElse(0.0);
@@ -405,12 +416,18 @@ public class NurseryService {
     private Double toDouble(Object val) {
         if (val == null) return null;
         if (val instanceof Number) return ((Number) val).doubleValue();
-        try { return Double.parseDouble(val.toString()); } catch (Exception e) { return null; }
+        try { return Double.parseDouble(val.toString()); } catch (NumberFormatException e) {
+            log.warning("Cannot parse double from: " + val);
+            return null;
+        }
     }
 
     private Integer toInt(Object val) {
         if (val == null) return null;
         if (val instanceof Number) return ((Number) val).intValue();
-        try { return Integer.parseInt(val.toString()); } catch (Exception e) { return null; }
+        try { return Integer.parseInt(val.toString()); } catch (NumberFormatException e) {
+            log.warning("Cannot parse integer from: " + val);
+            return null;
+        }
     }
 }

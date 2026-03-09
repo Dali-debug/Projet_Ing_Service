@@ -1,53 +1,51 @@
 version: '3.8'
 
 services:
-  postgres:
-    image: postgres:15-alpine
-    container_name: nursery_db
-    environment:
-      POSTGRES_USER: nursery_admin
-      POSTGRES_PASSWORD: nursery_password_2025
-      POSTGRES_DB: nursery_db
+  # ─── MongoDB (local dev) ──────────────────────────────────────────────────
+  # Remove or comment this out when using MongoDB Atlas – just set MONGODB_URI
+  mongodb:
+    image: mongo:7-jammy
+    container_name: nursery_mongodb
     ports:
-      - "5432:5432"
+      - "27017:27017"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U nursery_admin -d nursery_db"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - mongodb_data:/data/db
     restart: unless-stopped
 
-  # Optional: pgAdmin for database management
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    container_name: nursery_pgadmin
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@nursery.com
-      PGADMIN_DEFAULT_PASSWORD: admin123
-    ports:
-      - "5050:80"
-    depends_on:
-      - postgres
-    restart: unless-stopped
-
+  # ─── Spring Boot backend ─────────────────────────────────────────────────
   backend:
-    image: node:18-alpine
+    image: eclipse-temurin:17-jdk-alpine
     container_name: nursery_backend
+    working_dir: /app
+    volumes:
+      - ./backend-spring:/app
+      - maven_cache:/root/.m2
+    environment:
+      # To use MongoDB Atlas, set this variable:
+      # MONGODB_URI: mongodb+srv://<user>:<password>@<cluster>.mongodb.net/nursery_db
+      MONGODB_URI: mongodb://mongodb:27017/nursery_db
+    ports:
+      - "3000:3000"
+    command: sh -c "chmod +x mvnw && ./mvnw spring-boot:run -DskipTests"
+    depends_on:
+      - mongodb
+    restart: unless-stopped
+
+  # ─── Legacy Node.js backend (kept for reference, not started by default) ──
+  backend-node:
+    image: node:18-alpine
+    container_name: nursery_backend_node
     working_dir: /usr/src/app
+    profiles:
+      - legacy
     volumes:
       - ./backend:/usr/src/app
       - /usr/src/app/node_modules
-    env_file:
-      - ./backend/.env
     ports:
-      - "3000:3000"
+      - "3001:3000"
     command: sh -c "npm install && npm run dev"
-    depends_on:
-      - postgres
     restart: unless-stopped
 
 volumes:
-  postgres_data:
+  mongodb_data:
+  maven_cache:

@@ -43,7 +43,7 @@ public class EnrollmentService {
 
         // Calculate age from birthDate
         int age = 0;
-        if (birthDate != null && !birthDate.isEmpty()) {
+        if (birthDate != null && birthDate.length() >= 10) {
             try {
                 java.time.LocalDate dob = java.time.LocalDate.parse(birthDate.substring(0, 10));
                 age = java.time.Period.between(dob, java.time.LocalDate.now()).getYears();
