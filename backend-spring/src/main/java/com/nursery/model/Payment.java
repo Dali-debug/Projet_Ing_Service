@@ -12,7 +12,7 @@ public class Payment {
     @Id
     private String id;
 
-    @Indexed(unique = true)
+    @Indexed
     private String enrollmentId;
 
     private String parentId;
