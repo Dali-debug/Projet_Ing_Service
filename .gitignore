@@ -22,3 +22,8 @@ package-lock.json
 
 # Environment
 .env
+
+# Java / Maven
+backend-spring/target/
+*.jar
+*.war
