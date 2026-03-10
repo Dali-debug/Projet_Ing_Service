@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # ─── MongoDB (local dev) ──────────────────────────────────────────────────
+  # ─── MongoDB ───────────────────────────────────────────────────────────────
   # Remove or comment this out when using MongoDB Atlas – just set MONGODB_URI
   mongodb:
     image: mongo:7-jammy
@@ -29,21 +29,6 @@ services:
     command: sh -c "chmod +x mvnw && ./mvnw spring-boot:run -DskipTests"
     depends_on:
       - mongodb
-    restart: unless-stopped
-
-  # ─── Legacy Node.js backend (kept for reference, not started by default) ──
-  backend-node:
-    image: node:18-alpine
-    container_name: nursery_backend_node
-    working_dir: /usr/src/app
-    profiles:
-      - legacy
-    volumes:
-      - ./backend:/usr/src/app
-      - /usr/src/app/node_modules
-    ports:
-      - "3001:3000"
-    command: sh -c "npm install && npm run dev"
     restart: unless-stopped
 
 volumes:
