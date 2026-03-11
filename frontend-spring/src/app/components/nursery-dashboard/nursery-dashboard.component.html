@@ -95,8 +95,25 @@
         <h2 class="section-title">📅 Programme du jour</h2>
         <div class="schedule-list">
           <div class="schedule-item" *ngFor="let item of schedule">
-            <span class="schedule-time">{{ item.time_slot || item.heure }}</span>
-            <span class="schedule-activity">{{ item.activity || item.activite }}</span>
+            <span class="schedule-time">{{ item.timeSlot || item.time_slot || item.heure }}</span>
+            <span class="schedule-activity">{{ item.activityName || item.activity || item.activite }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Reviews -->
+      <div class="section" *ngIf="stats?.recentReviews && stats.recentReviews.length > 0">
+        <h2 class="section-title">⭐ Avis Récents</h2>
+        <div class="reviews-list">
+          <div class="review-card" *ngFor="let review of stats.recentReviews">
+            <div class="review-header">
+              <span class="review-author">{{ review.parent_name || review.parentName }}</span>
+              <span class="review-rating">
+                <span *ngFor="let star of [1,2,3,4,5]" [class.filled]="star <= review.rating">⭐</span>
+              </span>
+            </div>
+            <p class="review-comment">{{ review.comment }}</p>
+            <span class="review-date">{{ review.created_at || review.createdAt | date:'dd/MM/yyyy' }}</span>
           </div>
         </div>
       </div>

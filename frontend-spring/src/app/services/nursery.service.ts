@@ -80,7 +80,7 @@ export class NurseryService {
   }
 
   getDashboardStats(nurseryId: string): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/nurseries/${nurseryId}/stats`);
+    return this.http.get<any>(`${this.apiUrl}/nurseries/${nurseryId}/statistics`);
   }
 
   private mapNursery(n: any): Nursery {

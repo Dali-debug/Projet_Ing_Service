@@ -93,6 +93,17 @@ public class ConversationService {
         result.put("success", true);
         result.put("conversationId", conversationId);
         result.put("messages", dtos);
+        
+        // Include conversation details so frontend knows the participants
+        conversationRepository.findById(conversationId).ifPresent(conversation -> {
+            result.put("parentId", conversation.getParentId());
+            result.put("nurseryId", conversation.getNurseryId());
+            // Get owner ID from nursery
+            nurseryRepository.findById(conversation.getNurseryId()).ifPresent(n -> {
+                result.put("ownerId", n.getOwnerId());
+            });
+        });
+        
         return result;
     }
 

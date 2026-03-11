@@ -370,6 +370,20 @@ public class NurseryService {
         paymentStats.put("unpaidCount", unpaidCount);
         paymentStats.put("totalAmount", totalRevenue);
 
+        // Recent reviews
+        List<Map<String, Object>> recentReviews = reviews.stream()
+                .sorted(Comparator.comparing(Review::getCreatedAt).reversed())
+                .limit(5)
+                .map(r -> {
+                    Map<String, Object> dto = new HashMap<>();
+                    dto.put("id", r.getId());
+                    dto.put("rating", r.getRating());
+                    dto.put("comment", r.getComment());
+                    dto.put("created_at", r.getCreatedAt());
+                    userRepository.findById(r.getParentId()).ifPresent(u -> dto.put("parent_name", u.getName()));
+                    return dto;
+                }).collect(Collectors.toList());
+
         Map<String, Object> stats = new HashMap<>();
         stats.put("totalEnrollments", totalEnrollments);
         stats.put("activeEnrollments", activeEnrollments);
@@ -378,6 +392,7 @@ public class NurseryService {
         stats.put("monthlyRevenue", monthlyRevenue);
         stats.put("averageRating", Math.round(avgRating * 10.0) / 10.0);
         stats.put("totalReviews", reviews.size());
+        stats.put("recentReviews", recentReviews);
         stats.put("capacityUsed", capacityUsed);
         stats.put("totalCapacity", totalCapacity);
         stats.put("childrenByAgeGroup", childrenByAgeGroup);

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NurseryService } from '../../services/nursery.service';
 import { AuthService } from '../../services/auth.service';
+import { ConversationService } from '../../services/conversation.service';
 import { Nursery, Review } from '../../models';
 
 @Component({
@@ -22,7 +23,8 @@ export class NurseryDetailsComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private nurseryService: NurseryService,
-    private authService: AuthService
+    private authService: AuthService,
+    private conversationService: ConversationService
   ) {}
 
   ngOnInit() {
@@ -62,7 +64,24 @@ export class NurseryDetailsComponent implements OnInit {
   }
 
   contactNursery() {
-    this.router.navigate(['/chat']);
+    const user = this.authService.currentUser;
+    if (!user || !this.nursery) return;
+    
+    // Store recipient ID and nursery ID in session storage for the chat component
+    if (this.nursery.ownerId) {
+      sessionStorage.setItem('chatRecipientId', this.nursery.ownerId);
+    }
+    sessionStorage.setItem('chatParentId', user.id);
+    sessionStorage.setItem('chatNurseryId', this.nursery.id);
+    
+    this.conversationService.getOrCreateConversation(user.id, '', this.nursery.id).subscribe({
+      next: (conversation) => {
+        this.router.navigate(['/chat', conversation.id]);
+      },
+      error: (err) => {
+        console.error('Error creating conversation:', err);
+      }
+    });
   }
 
   goBack() {

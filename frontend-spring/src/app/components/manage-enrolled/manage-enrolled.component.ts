@@ -48,7 +48,9 @@ export class ManageEnrolledComponent implements OnInit {
 
   get filteredEnrollments() {
     if (this.activeTab === 'all') return this.enrollments;
-    return this.enrollments.filter(e => e.status === this.activeTab);
+    // Map 'accepted' tab to 'active' status from backend
+    const statusToFilter = this.activeTab === 'accepted' ? 'active' : this.activeTab;
+    return this.enrollments.filter(e => e.status === statusToFilter);
   }
 
   acceptEnrollment(id: string) {
@@ -67,6 +69,7 @@ export class ManageEnrolledComponent implements OnInit {
 
   getStatusBadge(status: string): string {
     switch (status) {
+      case 'active': return 'badge-success';
       case 'accepted': return 'badge-success';
       case 'pending': return 'badge-warning';
       case 'rejected': return 'badge-danger';
@@ -76,6 +79,7 @@ export class ManageEnrolledComponent implements OnInit {
 
   getStatusLabel(status: string): string {
     switch (status) {
+      case 'active': return 'Acceptée';
       case 'accepted': return 'Acceptée';
       case 'pending': return 'En attente';
       case 'rejected': return 'Refusée';

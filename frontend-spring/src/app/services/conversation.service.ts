@@ -26,19 +26,37 @@ export class ConversationService {
     );
   }
 
-  getMessages(conversationId: string): Observable<Message[]> {
-    return this.http.get<any>(`${this.apiUrl}/conversations/${conversationId}/messages`).pipe(
-      map(response => {
-        const messages = response.messages || response || [];
-        return messages.map((m: any) => this.mapMessage(m));
+  getMessages(conversationId: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/conversations/${conversationId}/messages`);
+  }
+
+  getConversation(conversationId: string): Observable<Conversation> {
+    return this.getConversations('').pipe(
+      map(conversations => {
+        // This is a workaround - ideally we'd have a single endpoint
+        // For now, return empty conversation object with just ID
+        return {
+          id: conversationId,
+          parentId: '',
+          nurseryId: '',
+          ownerId: '',
+          messages: [],
+          lastMessageAt: new Date().toISOString(),
+          unreadCount: 0,
+          lastMessage: '',
+          otherUserName: '',
+          nurseryName: '',
+          parentName: '',
+          ownerName: ''
+        };
       })
     );
   }
 
-  sendMessage(conversationId: string, senderId: string, content: string): Observable<any> {
+  sendMessage(conversationId: string, senderId: string, recipientId: string, content: string): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/conversations/${conversationId}/messages`, {
       senderId,
-      recipientId: '',
+      recipientId,
       content
     });
   }
@@ -52,7 +70,7 @@ export class ConversationService {
       id: c.id?.toString() || '',
       parentId: c.parentId || c.parent_id || '',
       nurseryId: c.nurseryId || c.nursery_id || c.garderieId || '',
-      ownerId: c.ownerId || '',
+      ownerId: c.ownerId || c.owner_id || '',
       messages: (c.messages || []).map((m: any) => this.mapMessage(m)),
       lastMessageAt: c.lastMessageAt || c.last_message_at || new Date().toISOString(),
       unreadCount: parseInt(c.unreadCount || c.messages_non_lus || c.messagesNonLus) || 0,

@@ -6,6 +6,7 @@ import { ParentService } from '../../services/parent.service';
 import { ChildService } from '../../services/child.service';
 import { EnrollmentService } from '../../services/enrollment.service';
 import { NotificationService } from '../../services/notification.service';
+import { ConversationService } from '../../services/conversation.service';
 
 @Component({
   selector: 'app-parent-dashboard',
@@ -29,6 +30,7 @@ export class ParentDashboardComponent implements OnInit {
     private childService: ChildService,
     private enrollmentService: EnrollmentService,
     private notificationService: NotificationService,
+    private conversationService: ConversationService,
     private router: Router
   ) {}
 
@@ -81,5 +83,31 @@ export class ParentDashboardComponent implements OnInit {
   navigateToReviews() { this.router.navigate(['/parent/reviews']); }
   navigateToNotifications() { this.router.navigate(['/notifications']); }
   navigateToChat() { this.router.navigate(['/chat']); }
+  
+  contactNursery(nurseryId: string) {
+    const user = this.authService.currentUser;
+    if (!user) return;
+    
+    // Find the nursery to get owner info
+    const nursery = this.enrolledNurseries.find(n => (n.id || n.nursery_id) === nurseryId);
+    if (!nursery) return;
+    
+    // Store nursery owner ID and nursery ID in session storage for the chat component to use
+    if (nursery.ownerId) {
+      sessionStorage.setItem('chatRecipientId', nursery.ownerId);
+    }
+    sessionStorage.setItem('chatParentId', user.id);
+    sessionStorage.setItem('chatNurseryId', nurseryId);
+    
+    this.conversationService.getOrCreateConversation(user.id, '', nurseryId).subscribe({
+      next: (conversation) => {
+        this.router.navigate(['/chat', conversation.id]);
+      },
+      error: (err) => {
+        console.error('Error creating conversation:', err);
+      }
+    });
+  }
+  
   viewNurseryDetails(nurseryId: string) { this.router.navigate(['/nursery/details', nurseryId]); }
 }

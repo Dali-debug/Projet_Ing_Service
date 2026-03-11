@@ -53,14 +53,13 @@ export class NurserySetupComponent {
       phone: this.phone,
       email: this.email,
       description: this.description,
-      pricePerMonth: parseFloat(this.pricePerMonth) || 0,
-      totalSpots: parseInt(this.totalSpots) || 20,
-      availableSpots: parseInt(this.totalSpots) || 20,
-      ageRange: this.ageRange,
+      price_per_month: parseFloat(this.pricePerMonth) || 0,
+      total_spots: parseInt(this.totalSpots) || 20,
+      age_range: this.ageRange,
       hours: this.hours,
       facilities: this.facilities.split(',').map(f => f.trim()).filter(f => f),
       activities: this.activities.split(',').map(a => a.trim()).filter(a => a),
-      ownerId: user.id
+      owner_id: user.id
     }).subscribe({
       next: () => {
         this.isLoading = false;

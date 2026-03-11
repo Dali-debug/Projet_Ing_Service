@@ -69,7 +69,24 @@ export class AuthService {
   }
 
   updateUser(userId: string, data: { name: string; phone: string }): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/users/${userId}`, data);
+    return this.http.put<any>(`${this.apiUrl}/users/${userId}`, data).pipe(
+      tap(response => {
+        if (response.user) {
+          const currentUser = this.currentUserSubject.value;
+          if (currentUser) {
+            const updatedUser: User = {
+              id: currentUser.id,
+              name: response.user.name || currentUser.name,
+              email: currentUser.email,
+              type: currentUser.type,
+              phone: response.user.phone || currentUser.phone
+            };
+            localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+            this.currentUserSubject.next(updatedUser);
+          }
+        }
+      })
+    );
   }
 
   isLoggedIn(): boolean {
