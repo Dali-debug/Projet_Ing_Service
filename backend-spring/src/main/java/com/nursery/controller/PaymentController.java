@@ -28,11 +28,12 @@ public class PaymentController {
 
     @PostMapping("/process")
     public ResponseEntity<Map<String, Object>> processPayment(@RequestBody Map<String, Object> body) {
+        String paymentId = (String) body.get("paymentId");
         String enrollmentId = (String) body.get("enrollmentId");
         String cardNumber = (String) body.get("cardNumber");
         String expiryDate = (String) body.get("expiryDate");
         String cvv = (String) body.get("cvv");
-        Map<String, Object> result = paymentService.processPayment(enrollmentId, cardNumber, expiryDate, cvv);
+        Map<String, Object> result = paymentService.processPaymentById(paymentId, enrollmentId, cardNumber, expiryDate, cvv);
         boolean success = Boolean.TRUE.equals(result.get("success"));
         return ResponseEntity.status(success ? 200 : 400).body(result);
     }

@@ -70,29 +70,21 @@ public class PaymentService {
         return result;
     }
 
-    public Map<String, Object> processPayment(String enrollmentId, String cardNumber,
-                                               String expiryDate, String cvv) {
+    public Map<String, Object> processPaymentById(String paymentId, String enrollmentId,
+                                                   String cardNumber, String expiryDate, String cvv) {
         Map<String, Object> result = new HashMap<>();
-        Optional<Payment> optPayment = paymentRepository.findByEnrollmentId(enrollmentId);
+        // Look up by payment ID first, fall back to enrollmentId
+        Optional<Payment> optPayment = (paymentId != null && !paymentId.isEmpty())
+                ? paymentRepository.findById(paymentId)
+                : (enrollmentId != null ? paymentRepository.findByEnrollmentId(enrollmentId) : Optional.empty());
 
         Payment payment;
         if (optPayment.isPresent()) {
             payment = optPayment.get();
         } else {
-            Optional<Enrollment> optEnrollment = enrollmentRepository.findById(enrollmentId);
-            if (optEnrollment.isEmpty()) {
-                result.put("success", false);
-                result.put("message", "Enrollment not found");
-                return result;
-            }
-            Enrollment e = optEnrollment.get();
-            payment = new Payment();
-            payment.setEnrollmentId(enrollmentId);
-            payment.setParentId(e.getParentId());
-            payment.setNurseryId(e.getNurseryId());
-            payment.setChildId(e.getChildId());
-            nurseryRepository.findById(e.getNurseryId())
-                    .ifPresent(n -> payment.setAmount(n.getPricePerMonth()));
+            result.put("success", false);
+            result.put("message", "Payment not found");
+            return result;
         }
 
         if ("paid".equals(payment.getPaymentStatus())) {
@@ -226,11 +218,22 @@ public class PaymentService {
         dto.put("childId", p.getChildId());
         dto.put("amount", p.getAmount());
         dto.put("paymentStatus", p.getPaymentStatus());
+        dto.put("status", p.getPaymentStatus());
         dto.put("paymentDate", p.getPaymentDate());
+        dto.put("paidAt", p.getPaymentDate());
         dto.put("cardLastDigits", p.getCardLastDigits());
         dto.put("transactionId", p.getTransactionId());
         dto.put("description", p.getDescription());
         dto.put("createdAt", p.getCreatedAt());
+        // Enrich with nursery name and child name
+        nurseryRepository.findById(p.getNurseryId() != null ? p.getNurseryId() : "").ifPresent(n -> {
+            dto.put("nurseryName", n.getName());
+            dto.put("nursery_name", n.getName());
+        });
+        childRepository.findById(p.getChildId() != null ? p.getChildId() : "").ifPresent(c -> {
+            dto.put("childName", c.getName());
+            dto.put("child_name", c.getName());
+        });
         return dto;
     }
 }

@@ -30,7 +30,21 @@
 
   .child-info {
     h3 { font-size: 16px; font-weight: 600; margin-bottom: 2px; }
-    p { font-size: 13px; color: #6b7280; }
+    p { font-size: 13px; color: #6b7280; margin: 2px 0; }
     .parent-name { font-size: 12px; color: #9ca3af; }
+    .parent-phone { font-size: 12px; color: #9ca3af; }
+    .start-date { font-size: 12px; color: #9ca3af; }
   }
+}
+
+.status-badge {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  &.status-active { background: #d1fae5; color: #065f46; }
+  &.status-pending { background: #fef3c7; color: #92400e; }
+  &.status-cancelled { background: #fee2e2; color: #991b1b; }
 }

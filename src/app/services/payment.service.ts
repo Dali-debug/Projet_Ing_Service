@@ -11,12 +11,18 @@ export class PaymentService {
 
   getPaymentStatus(parentId: string): Observable<Payment[]> {
     return this.http.get<any>(`${this.apiUrl}/payments/parent/${parentId}/status`).pipe(
-      map(response => response.payments || response || [])
+      map(response => response.pendingPayments || response.payments || response || [])
     );
   }
 
   processPayment(data: { paymentId: string; cardNumber: string; expiryDate: string; cvv: string; cardholderName: string }): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/payments/process`, data);
+    return this.http.post<any>(`${this.apiUrl}/payments/process`, {
+      paymentId: data.paymentId,
+      cardNumber: data.cardNumber,
+      expiryDate: data.expiryDate,
+      cvv: data.cvv,
+      cardholderName: data.cardholderName
+    });
   }
 
   getPaymentHistory(parentId: string): Observable<Payment[]> {

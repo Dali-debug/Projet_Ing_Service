@@ -221,9 +221,14 @@ public class NurseryService {
 
         Map<String, Object> stats = new HashMap<>();
         stats.put("enrolledChildren", activeEnrollments);
+        stats.put("totalEnrolled", activeEnrollments);
         stats.put("totalSpots", nursery.getTotalSpots());
         stats.put("availableSpots", nursery.getAvailableSpots());
         stats.put("monthlyRevenue", monthlyRevenue);
+        stats.put("totalRevenue", monthlyRevenue);
+        stats.put("total_revenue", monthlyRevenue);
+        stats.put("averageRating", Math.round(rating * 10.0) / 10.0);
+        stats.put("average_rating", Math.round(rating * 10.0) / 10.0);
         stats.put("pendingEnrollments", pendingEnrollments);
         stats.put("rating", Math.round(rating * 10.0) / 10.0);
         stats.put("reviewCount", reviews.size());
@@ -387,8 +392,10 @@ public class NurseryService {
         Map<String, Object> stats = new HashMap<>();
         stats.put("totalEnrollments", totalEnrollments);
         stats.put("activeEnrollments", activeEnrollments);
+        stats.put("totalEnrolled", activeEnrollments);
         stats.put("pendingEnrollments", pendingEnrollments);
         stats.put("totalRevenue", totalRevenue);
+        stats.put("total_revenue", totalRevenue);
         stats.put("monthlyRevenue", monthlyRevenue);
         stats.put("averageRating", Math.round(avgRating * 10.0) / 10.0);
         stats.put("totalReviews", reviews.size());

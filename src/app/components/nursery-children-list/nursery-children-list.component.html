@@ -8,11 +8,16 @@
     <ng-container *ngIf="!isLoading">
       <div class="children-grid" *ngIf="enrolledChildren.length > 0">
         <div class="child-card" *ngFor="let child of enrolledChildren">
-          <div class="child-avatar">{{ (child.child_name || child.name || 'E').charAt(0).toUpperCase() }}</div>
+          <div class="child-avatar">{{ (child.childName || child.name || 'E').charAt(0).toUpperCase() }}</div>
           <div class="child-info">
-            <h3>{{ child.child_name || child.name }}</h3>
-            <p>{{ child.child_age || child.age }} ans</p>
-            <p class="parent-name">Parent: {{ child.parent_name || child.parentName || 'N/A' }}</p>
+            <h3>{{ child.childName || child.name }}</h3>
+            <p>{{ child.age }} ans</p>
+            <p class="parent-name">Parent: {{ child.parentName || 'N/A' }}</p>
+            <p *ngIf="child.parentPhone" class="parent-phone">📞 {{ child.parentPhone }}</p>
+            <p *ngIf="child.startDate" class="start-date">Depuis: {{ child.startDate }}</p>
+            <span class="status-badge status-{{ child.enrollmentStatus || 'active' }}">
+              {{ child.enrollmentStatus === 'active' ? 'Inscrit' : child.enrollmentStatus }}
+            </span>
           </div>
         </div>
       </div>

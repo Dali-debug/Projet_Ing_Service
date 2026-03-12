@@ -31,23 +31,56 @@ public class EnrollmentService {
         this.paymentRepository = paymentRepository;
     }
 
+    @SuppressWarnings("unchecked")
+    private <T> T getField(Map<String, Object> body, String camelKey, String snakeKey) {
+        Object val = body.get(camelKey);
+        if (val == null) val = body.get(snakeKey);
+        return (T) val;
+    }
+
     public Map<String, Object> createEnrollment(Map<String, Object> body) {
         Map<String, Object> result = new HashMap<>();
-
-        String childName = (String) body.get("childName");
+        try {
+        String childName = getField(body, "childName", "child_name");
         String birthDate = (String) body.get("birthDate");
-        String parentId = (String) body.get("parentId");
-        String nurseryId = (String) body.get("nurseryId");
-        String startDate = (String) body.get("startDate");
+        String parentId = getField(body, "parentId", "parent_id");
+        String nurseryId = getField(body, "nurseryId", "nursery_id");
+        String startDate = getField(body, "startDate", "start_date");
         String notes = (String) body.get("notes");
+        String medicalNotes = getField(body, "medicalNotes", "medical_notes");
+        if (notes == null) notes = "";
+        if (medicalNotes != null && !medicalNotes.isEmpty()) {
+            notes = medicalNotes + (notes.isEmpty() ? "" : "\n" + notes);
+        }
 
-        // Calculate age from birthDate
+        // Calculate age: prefer birthDate, fall back to child_age / childAge
         int age = 0;
         if (birthDate != null && birthDate.length() >= 10) {
             try {
                 java.time.LocalDate dob = java.time.LocalDate.parse(birthDate.substring(0, 10));
                 age = java.time.Period.between(dob, java.time.LocalDate.now()).getYears();
             } catch (Exception ignored) {}
+        } else {
+            Object childAgeObj = getField(body, "childAge", "child_age");
+            if (childAgeObj != null) {
+                try { age = Integer.parseInt(childAgeObj.toString()); } catch (Exception ignored) {}
+            }
+        }
+
+        if (childName == null || childName.isEmpty()) {
+            result.put("success", false);
+            result.put("message", "Le nom de l'enfant est requis");
+            return result;
+        }
+        if (nurseryId == null || nurseryId.isEmpty()) {
+            result.put("success", false);
+            result.put("message", "L'identifiant de la garderie est requis");
+            return result;
+        }
+        if (parentId == null || parentId.isEmpty()) {
+            result.put("success", false);
+            result.put("message", "L'identifiant du parent est requis");
+            return result;
         }
 
         // Create child
@@ -93,6 +126,11 @@ public class EnrollmentService {
         result.put("success", true);
         result.put("enrollment", enrollmentDto);
         return result;
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", "Erreur interne: " + e.getMessage());
+            return result;
+        }
     }
 
     public Map<String, Object> getByNursery(String nurseryId) {

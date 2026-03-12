@@ -24,7 +24,18 @@ export class NurseryChildrenListComponent implements OnInit {
           if (nurseries.length > 0) {
             this.nurseryService.getEnrolledChildren(nurseries[0].id).subscribe({
               next: (response) => {
-                this.enrolledChildren = response.children || response.enrolledChildren || response || [];
+                // Backend returns { parents: [{ parentName, parentPhone, children: [...] }] }
+                if (response.parents && Array.isArray(response.parents)) {
+                  this.enrolledChildren = response.parents.flatMap((p: any) =>
+                    (p.children || []).map((c: any) => ({
+                      ...c,
+                      parentName: c.parentName || p.parentName || 'N/A',
+                      parentPhone: c.parentPhone || p.parentPhone || ''
+                    }))
+                  );
+                } else {
+                  this.enrolledChildren = response.children || response.enrolledChildren || [];
+                }
                 this.isLoading = false;
               },
               error: () => this.isLoading = false
